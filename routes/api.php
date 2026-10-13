@@ -37,6 +37,10 @@ use App\Http\Controllers\Api\V1\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
+
+    Route::get("/health", function () {
+        return response()->json(["status" => "Working"]);
+    });
     Route::prefix('auth')->group(function (): void {
         Route::post('register', [AuthController::class, 'register'])->middleware('throttle:5,1');
         Route::post('register-business', [AuthController::class, 'registerBusiness'])->middleware('throttle:5,1');
