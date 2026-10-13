@@ -28,7 +28,12 @@ return new class extends Migration
             $table->foreignId('business_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_variant_id')->nullable()->constrained('product_variants')->cascadeOnDelete();
-            $table->unsignedBigInteger('variant_identity')->storedAs('COALESCE(product_variant_id, 0)');
+            // VIRTUAL (not STORED): MySQL/InnoDB rejects a foreign key with a modifying
+            // referential action (ON DELETE/UPDATE CASCADE, SET NULL) on a base column of a
+            // STORED generated column with error 1215 "Cannot add foreign key constraint".
+            // InnoDB supports secondary/unique indexes on VIRTUAL generated columns, so the
+            // unique constraint below keeps working while the cascade stays valid.
+            $table->unsignedBigInteger('variant_identity')->virtualAs('COALESCE(product_variant_id, 0)');
             $table->foreignId('location_id')->constrained('inventory_locations')->cascadeOnDelete();
             $table->unsignedInteger('quantity')->default(0);
             $table->unsignedInteger('reserved_quantity')->default(0);

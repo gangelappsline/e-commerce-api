@@ -25,7 +25,9 @@ return new class extends Migration
             $table->foreignId('wishlist_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_variant_id')->nullable()->constrained('product_variants')->nullOnDelete();
-            $table->unsignedBigInteger('variant_identity')->storedAs('COALESCE(product_variant_id, 0)');
+            // VIRTUAL (not STORED): MySQL/InnoDB does not allow a foreign key whose referential
+            // action modifies (SET NULL / CASCADE) a base column of a STORED generated column.
+            $table->unsignedBigInteger('variant_identity')->virtualAs('COALESCE(product_variant_id, 0)');
             $table->timestamp('added_at')->useCurrent();
             $table->timestamps();
             $table->unique(['wishlist_id', 'product_id', 'variant_identity'], 'wishlist_item_identity_unique');
