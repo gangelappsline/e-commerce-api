@@ -102,6 +102,7 @@ API routes are versioned under `/api/v1`. The project includes customer/business
 - Webhook endpoints require HTTPS and public DNS addresses. Deliveries are HMAC-signed (`X-ShopLine-Signature`) and logged; webhook receivers should deduplicate deliveries.
 - The payment gateway interface is intentionally unbound. A gateway adapter must handle idempotency, signature validation, authorization/capture/refund callbacks, and reconciliation before payment states are marked paid/refunded.
 - Use a production secret manager for `APP_KEY`, Passport keys, Meilisearch key, mail credentials, and webhook secrets; do not commit `.env` files or generated Passport credentials.
+- `variant_identity` on `inventory_items`, `cart_items`, and `wishlist_items` must stay a VIRTUAL generated column (`COALESCE(product_variant_id, 0)`) so a nullable variant can take part in the identity unique index. InnoDB rejects any foreign key whose referential action modifies (`ON DELETE CASCADE`, `ON DELETE SET NULL`, `ON UPDATE CASCADE`) a base column of a STORED generated column with error 1215 `Cannot add foreign key constraint`; VIRTUAL columns keep both the unique index and the referential actions working.
 
 ## Validation
 

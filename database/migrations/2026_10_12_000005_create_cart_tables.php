@@ -35,7 +35,9 @@ return new class extends Migration
             $table->foreignId('cart_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_variant_id')->nullable()->constrained('product_variants')->nullOnDelete();
-            $table->unsignedBigInteger('variant_identity')->storedAs('COALESCE(product_variant_id, 0)');
+            // VIRTUAL (not STORED): MySQL/InnoDB does not allow a foreign key whose referential
+            // action modifies (SET NULL / CASCADE) a base column of a STORED generated column.
+            $table->unsignedBigInteger('variant_identity')->virtualAs('COALESCE(product_variant_id, 0)');
             $table->unsignedInteger('quantity');
             $table->decimal('unit_price', 12, 2);
             $table->decimal('discount', 12, 2)->default(0);
